@@ -145,6 +145,21 @@ don't partially ingest and fail mid-run.
 
 Other intake rules:
 
+- **Derive the new-work list by set difference, never by inference.** When a
+  ref is a folder whose files are themselves the concept sources (a source
+  library like `knowledge-sources/`), the files to enrich this run are
+  **every file the folder actually contains that the bundle does not yet
+  cover** — not the ones that look new at a glance. Compute it explicitly:
+  enumerate the live folder (`ls`/`find`) to get the real file set, subtract
+  the files already recorded in the descriptor's `# Citations` ledger
+  (equivalently, already cited by a concept), and treat every remaining file
+  as new. Never back-compute the file set or its size from the previous
+  descriptor's stated count, and never stop at the first obvious cluster of
+  new files — a real run miscounted a 23-file folder as 18 by anchoring on
+  the old descriptor and matching only the salient new group, silently
+  dropping five sources. After refreshing the descriptor, **assert its file
+  count equals the live enumeration** before handing off to Organize; a
+  mismatch is a stop-and-report defect, not something to paper over.
 - **Slug-collision suffixing.** If the slug a ref would land under already
   exists under `references/` (and points at different source material),
   suffix it `-2`, `-3`, etc. — never overwrite a different source's
