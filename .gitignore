@@ -4,3 +4,6 @@ __pycache__/
 
 # SDD scratch (briefs, reports, review packages, progress ledger)
 .superpowers/
+
+# Runtime scratch: the status line's current-bundle pointer
+.claude/.current-bundle
