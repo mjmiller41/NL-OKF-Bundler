@@ -30,12 +30,22 @@ Body:
   section starting `[MM:SS]`/`[H:MM:SS]`.
 - `# Common usage` — code concepts only (how it's invoked/imported); omit for
   documents and videos.
-- `# Citations` — at least one bullet linking the underlying resource(s):
-  repo-root paths for local files, canonical URLs for external sources; the video
-  URL for `type: Video`.
+- `# Citations` — at least one bullet linking the underlying resource(s). A
+  `/`-prefixed link is **bundle-relative** (resolved from the bundle root), so
+  it must point at something that actually exists inside the bundle. When you
+  cite a source file that lives in a **referenced folder**, link it through that
+  folder's symlink — `/references/<slug>/path/to/file` — **not** a bare
+  project-root path like `/HANDOFF.md`. A bare `/HANDOFF.md` resolves to a
+  nonexistent bundle-root file and lints as a broken link, whereas
+  `/references/<slug>/HANDOFF.md` resolves through the symlink to the real
+  source. Use canonical URLs for external web sources, and the source video URL
+  for `type: Video`.
 
 Linking: reference another bundle concept with a bundle-relative link starting
 `/` (e.g. `/technology/ai.md`). Only link concepts that exist in the bundle.
+Every `/`-link you write — citation or cross-reference — must resolve to a real
+path in the bundle (a concept doc, or a file reachable through a
+`references/<slug>` symlink); a link that doesn't resolve is a broken link.
 
 Quality bar: concrete and factual, for an engineer meeting the project for the
 first time. No marketing, no filler, no speculation.

@@ -150,10 +150,13 @@ for p in md_files:
             errors.append(f"{rel}: frontmatter has no non-empty 'type' field")
         else:
             meta[rel] = fm
-    # bundle-relative links (soft check — consumers must tolerate breakage)
+    # bundle-relative links (soft check — consumers must tolerate breakage).
+    # os.path.exists follows symlinks and covers non-.md targets, so a link
+    # through a references/<slug> folder symlink (e.g. a cited source file)
+    # resolves instead of falsely warning.
     for target in re.findall(r"\]\((/[^)#\s]+)", text):
         t = target.lstrip("/")
-        if t and not t.endswith("/") and t not in all_rel and not os.path.isdir(os.path.join(bundle, t)):
+        if t and not t.endswith("/") and t not in all_rel and not os.path.exists(os.path.join(bundle, t)):
             warnings.append(f"{rel}: broken bundle-relative link {target}")
 
 # --- sync pass: index files ---

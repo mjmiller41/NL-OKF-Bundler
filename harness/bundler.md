@@ -82,11 +82,23 @@ Run the phases below in order. Each phase's output feeds the next.
    diary entry for everything the run just did (see Validation & stopping
    condition).
 6. **Sync.** From the repo root, run
-   `OKF_BUNDLE_DIR=<OUT> bash scripts/okf-sync.sh` (not `--lint-only` — let
-   it also regenerate indexes and commit if the project is a git work tree).
+   `OKF_BUNDLE_DIR=<OUT> bash scripts/okf-sync.sh --no-commit` — regenerate
+   indexes and lint, but **do not commit**. Never auto-commit the target
+   bundle: `OUT` may be a git repo with its own hooks, and committing it can
+   trigger foreign automation (e.g. a `post-commit` bundle sync that
+   regenerates docs). Leave every bundle change staged for the user to review
+   and commit per the git workflow.
 7. **Validate.** Dispatch the `validator` subagent against `OUT`.
-8. **Run summary.** Emit the summary (see Run summary) covering everything
-   from Intake through Validate.
+8. **Review.** Dispatch the `reviewer` subagent against `OUT` for a
+   link-and-citation integrity + quality pass — it catches broken bundle
+   links, unresolved citations, leftover scratch, and placeholder/truncated
+   content that the mechanical lint only flags as advisory. Fix the clear
+   mechanical findings it returns (repoint or remove broken `/`-links, delete
+   leftover scratch), then re-run the **Sync** step once so the fixes are
+   reflected; report anything you can't cleanly fix in the Run summary. Do
+   not loop more than once.
+9. **Run summary.** Emit the summary (see Run summary) covering everything
+   from Intake through Review.
 
 ## Reference intake
 
@@ -146,9 +158,9 @@ Other intake rules:
 
 Dispatch every subagent via the `Task` tool. Each `Task` call's prompt is the
 full contents of the subagent's doc (`harness/subagents/enricher.md`,
-`organizer.md`, `web-crawler.md`, or `validator.md`) plus a **self-contained
-brief** appended after it — the subagent gets no other context, so the brief
-must stand alone:
+`organizer.md`, `web-crawler.md`, `validator.md`, or `reviewer.md`) plus a
+**self-contained brief** appended after it — the subagent gets no other
+context, so the brief must stand alone:
 
 - **Goal** — the one concept (enricher), the tree-planning task (organizer),
   the crawl (web-crawler), or the audit (validator) it's doing.
@@ -161,7 +173,7 @@ must stand alone:
   specifies.
 
 Reference each subagent by its frontmatter `name`: `enricher`, `organizer`,
-`web-crawler`, `validator`.
+`web-crawler`, `validator`, `reviewer`.
 
 **Parallel dispatch.** For independent concepts, issue multiple `Task` calls
 for `enricher` in a single message — one per concept — so they run
@@ -201,10 +213,11 @@ deletes, and reference additions from Intake. A run that made no changes
 write an empty or no-op entry.
 
 After `log.md` is authored, run
-`OKF_BUNDLE_DIR=<OUT> bash scripts/okf-sync.sh` (full mode, not
-`--lint-only`) to regenerate indexes; it may itself append an
-`okf-bundle-sync` bullet under the same day's heading for index-sync work —
-that's expected and separate from the entry you just wrote.
+`OKF_BUNDLE_DIR=<OUT> bash scripts/okf-sync.sh --no-commit` (regenerate
+indexes + lint, **no commit**) — it may itself append an `okf-bundle-sync`
+bullet under the same day's heading for index-sync work; that's expected and
+separate from the entry you just wrote. The run leaves all bundle changes
+uncommitted for the user to review; never commit the target bundle yourself.
 
 **Stopping condition — the run is done when both hold:**
 
@@ -226,6 +239,9 @@ Close every run with a summary covering:
   form `concept "AI" -> technology/ai`, as reported back by the organizer.
 - **`uncited:`** — the list of concepts the validator flagged as missing a
   non-empty `# Citations` section (soft contract, not a blocking defect).
+- **Review findings** — the `reviewer`'s broken-link / unresolved-citation /
+  quality findings: which you fixed this run and which remain (each with the
+  concept and the issue). Do not silently drop a finding you didn't fix.
 
 Also state the stopping-condition outcome (lint clean + validator
 conformant, or what's still broken) and, if a web-crawl ran, its one-line
