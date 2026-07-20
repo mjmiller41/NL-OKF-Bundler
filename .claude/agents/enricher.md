@@ -38,8 +38,10 @@ Body:
   project-root path like `/HANDOFF.md`. A bare `/HANDOFF.md` resolves to a
   nonexistent bundle-root file and lints as a broken link, whereas
   `/references/<slug>/HANDOFF.md` resolves through the symlink to the real
-  source. Use canonical URLs for external web sources, and the source video URL
-  for `type: Video`.
+  source. If the target filename contains spaces, percent-encode them in the
+  link (`.../My%20File.md`) — the standard markdown form, which the linter
+  decodes and resolves. Use canonical URLs for external web sources, and the
+  source video URL for `type: Video`.
 
 Linking: reference another bundle concept with a bundle-relative link starting
 `/` (e.g. `/technology/ai.md`). Only link concepts that exist in the bundle.
