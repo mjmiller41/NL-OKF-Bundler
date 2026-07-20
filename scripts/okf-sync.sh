@@ -40,21 +40,24 @@ set -uo pipefail
 [ -n "${OKF_SYNC:-}" ] && exit 0
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+CALLER_PWD="$PWD"
 cd "$HERE" || exit 1
 
 MODE="${1:-}"
 
 # --- locate the bundle -------------------------------------------------
 BUNDLE="${OKF_BUNDLE_DIR:-}"
-if [ -z "$BUNDLE" ]; then
+if [ -n "$BUNDLE" ]; then
+  case "$BUNDLE" in /*) ;; *) BUNDLE="$CALLER_PWD/$BUNDLE" ;; esac
+else
   while IFS= read -r idx; do
     if head -n 20 "$idx" 2>/dev/null | grep -q '^okf_version:'; then
       BUNDLE="$(dirname "$idx")"
       break
     fi
-  done < <(find . -maxdepth 3 -name index.md -not -path './.git/*' 2>/dev/null | sort)
+  done < <(find "$CALLER_PWD" -maxdepth 3 -name index.md -not -path '*/.git/*' 2>/dev/null | sort)
 fi
-BUNDLE="${BUNDLE:-knowledge}"
+BUNDLE="${BUNDLE:-$CALLER_PWD/knowledge}"
 BUNDLE="${BUNDLE#./}"
 
 if [ ! -d "$BUNDLE" ]; then
