@@ -20,12 +20,15 @@ NL-OKF-Bundler/
   CLAUDE.md                 # bootstrap → @import harness/bundler.md; entry rules
   harness/
     bundler.md              # orchestrator: the enrich run-loop (was runner.py)
-    subagents/
+    OKF_SPEC.md               # vendored spec — the write-time contract
+  .claude/
+    agents/                   # native Claude Code subagents (dispatched by subagent_type)
       enricher.md            # writes ONE concept doc (was enrich_instruction.md)
       organizer.md            # organization pass: plan/move/merge/delete
       web-crawler.md          # web-crawl pass w/ guardrails
       validator.md            # OKF conformance + citation audit
-    OKF_SPEC.md               # vendored spec — the write-time contract
+      reviewer.md             # post-lint link/citation integrity + quality pass
+    settings.json             # status line + SessionStart bundler indicators
   scripts/
     okf-sync.sh              # index + log regeneration and conformance lint (helper)
     smoke-check.sh            # conformance smoke checker for a produced bundle
