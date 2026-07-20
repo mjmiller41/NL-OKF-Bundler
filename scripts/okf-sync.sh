@@ -73,6 +73,7 @@ trap 'rm -f "$TOUCHED"' EXIT
 # --- sync + lint (python3, stdlib only) --------------------------------
 BUNDLE="$BUNDLE" TODAY="$TODAY" TOUCHED="$TOUCHED" MODE="$MODE" python3 - <<'PYEOF'
 import os, re, sys
+from urllib.parse import unquote
 
 bundle = os.environ["BUNDLE"]
 today = os.environ["TODAY"]
@@ -155,7 +156,9 @@ for p in md_files:
     # through a references/<slug> folder symlink (e.g. a cited source file)
     # resolves instead of falsely warning.
     for target in re.findall(r"\]\((/[^)#\s]+)", text):
-        t = target.lstrip("/")
+        # URL-decode (%20 -> space) so a proper markdown link to a filename
+        # with spaces resolves on disk instead of falsely warning.
+        t = unquote(target.lstrip("/"))
         if t and not t.endswith("/") and t not in all_rel and not os.path.exists(os.path.join(bundle, t)):
             warnings.append(f"{rel}: broken bundle-relative link {target}")
 
