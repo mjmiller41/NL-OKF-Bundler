@@ -85,24 +85,37 @@ Run the phases below in order. Each phase's output feeds the next.
 
 ## Reference intake
 
-Land every ref under `OUT/references/` before Organize runs. Choose the tool
-by ref kind:
+Land every ref under `OUT/references/` before Organize runs, each as a
+**CONFORMANT** OKF doc — `references/` sits inside the linted tree, and the
+linter treats every non-reserved `.md` there as a concept requiring a
+non-empty `type`. Never dump raw source text as a frontmatter-less `.md`.
 
-- **Local files already in markdown** — `Read` directly; copy or symlink
-  into `references/` as appropriate to the ref's nature.
-- **Non-markdown files** — extract via `Bash`:
+For every ref, write `references/<slug>.md` with full frontmatter — `type`
+(`Document` for a file ref, `Folder` for a directory ref, `Video` for a
+YouTube ref, `Reference` for a fetched URL), `title`, `description`, and a
+quoted ISO-8601 `timestamp` — plus a `# Citations` section linking the
+source (the repo-root path for local refs, the URL for fetched ones).
+Extraction output feeds the descriptor's **body**, not a separate loose
+file. Choose the extraction tool by ref kind:
+
+- **Local files already in markdown** — `Read` directly; fold the content
+  (or a summary of it) into the descriptor body.
+- **Non-markdown files** — extract via `Bash`, then write the descriptor
+  from the extracted text:
   - PDF → `pdftotext`
   - `.docx` / `.html` / `.epub` → `pandoc`
   - YouTube URLs → `yt-dlp` (transcript/subtitle extraction)
-- **URLs** (non-YouTube) — `WebFetch`.
-- **Folders** — do not fully ingest. Create a symlink at
-  `references/<slug>` pointing at the folder (`ln -s`), then write a
-  generated descriptor `references/<slug>.md` built from a shape profile:
-  a file listing (e.g. `find`/`ls` output, capped to a reasonable depth), the
-  folder's own README if it has one, and a few representative content
-  samples (heads of a handful of key files). The descriptor is what
-  enrichers and the organizer read; the symlink preserves the original tree
-  for anyone who follows it.
+- **URLs** (non-YouTube) — `WebFetch`, then write the descriptor from the
+  fetched content.
+- **Folders** — do not fully ingest. Symlink the original tree at
+  `references/<slug>` (no `.md` extension, `ln -s`) so it stays browsable,
+  **and** write the conformant `references/<slug>.md` descriptor (with the
+  frontmatter above) built from a shape profile: a file listing (e.g.
+  `find`/`ls` output, capped to a reasonable depth), the folder's own
+  README if it has one, and a few representative content samples (heads of
+  a handful of key files). The descriptor is what enrichers and the
+  organizer read; the symlink is for anyone who follows the source tree
+  directly.
 
 **Before any extraction work**, check which extraction CLIs the actual set
 of refs requires and verify each is present: `command -v pdftotext` if any
@@ -161,8 +174,10 @@ the existing tree already has.
 ## Validation & stopping condition
 
 The orchestrator — not any subagent — authors `OUT/log.md` directly, and
-does so **before** running `scripts/okf-sync.sh`. Write (or prepend to) a
-newest-first entry:
+does so **before** running `scripts/okf-sync.sh`. A fresh `log.md` begins
+with a `# Knowledge Bundle Update Log` title line (matching okf-sync.sh's
+own seed title), followed by dated `## YYYY-MM-DD` sections, newest first.
+Write (or prepend to) a newest-first entry:
 
 ```
 ## YYYY-MM-DD

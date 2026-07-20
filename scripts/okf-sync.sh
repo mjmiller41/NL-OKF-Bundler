@@ -117,7 +117,7 @@ md_files = []
 for root, dirs, files in os.walk(bundle):
     dirs[:] = sorted(d for d in dirs if not d.startswith("."))
     for f in sorted(files):
-        if f.endswith(".md"):
+        if f.endswith(".md") and not f.startswith("."):
             md_files.append(os.path.join(root, f))
 
 all_rel = {os.path.relpath(p, bundle).replace(os.sep, "/") for p in md_files}
@@ -187,7 +187,7 @@ if not lint_only:
         for d in dirs:
             dir_entries.append((d + "/", f"* [{d}]({d}/index.md) - {subtree_desc(reldir + d + '/')}"))
         for f in sorted(files):
-            if not f.endswith(".md") or f in RESERVED:
+            if not f.endswith(".md") or f in RESERVED or f.startswith("."):
                 continue
             fm = meta.get(reldir + f, {})
             title = _s(fm.get("title")) or os.path.splitext(f)[0]
@@ -256,10 +256,10 @@ LINT_RC=$?
 
 # --- commit (git projects only) ----------------------------------------
 if [ -s "$TOUCHED" ] && [ "$MODE" != "--no-commit" ] && [ "$MODE" != "--lint-only" ]; then
-  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if git -C "$BUNDLE" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     mapfile -t files < "$TOUCHED"
-    git add -- "${files[@]}" && \
-    OKF_SYNC=1 git commit -q -m "chore(okf): sync knowledge bundle indexes" -- "${files[@]}" \
+    git -C "$BUNDLE" add -- "${files[@]}" && \
+    OKF_SYNC=1 git -C "$BUNDLE" commit -q -m "chore(okf): sync knowledge bundle indexes" -- "${files[@]}" \
       && echo "okf-bundle-sync: committed ${#files[@]} file(s)"
   fi
 fi
