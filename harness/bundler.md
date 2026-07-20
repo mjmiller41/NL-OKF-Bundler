@@ -156,11 +156,11 @@ Other intake rules:
 
 ## Handoff protocol
 
-Dispatch every subagent via the `Task` tool. Each `Task` call's prompt is the
-full contents of the subagent's doc (`harness/subagents/enricher.md`,
-`organizer.md`, `web-crawler.md`, `validator.md`, or `reviewer.md`) plus a
-**self-contained brief** appended after it — the subagent gets no other
-context, so the brief must stand alone:
+Dispatch every subagent via the `Task` tool, selecting it by its
+**`subagent_type`** — the agent's `name`, which Claude Code discovers from
+`.claude/agents/<name>.md` and loads as that agent's system prompt
+automatically. Your `Task` prompt is therefore just a **self-contained brief**
+(the agent starts with a fresh context and gets nothing else):
 
 - **Goal** — the one concept (enricher), the tree-planning task (organizer),
   the crawl (web-crawler), or the audit (validator) it's doing.
@@ -172,8 +172,8 @@ context, so the brief must stand alone:
 - **What to return** — the exact shape each doc's own "Return" section
   specifies.
 
-Reference each subagent by its frontmatter `name`: `enricher`, `organizer`,
-`web-crawler`, `validator`, `reviewer`.
+Available agents, by `subagent_type` (their frontmatter `name`): `enricher`,
+`organizer`, `web-crawler`, `validator`, `reviewer`.
 
 **Parallel dispatch.** For independent concepts, issue multiple `Task` calls
 for `enricher` in a single message — one per concept — so they run
