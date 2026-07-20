@@ -1,3 +1,4 @@
+# This file is kept for provenance/reference only; it is not used at runtime and requires okf_bundler + PyYAML (not vendored here).
 from __future__ import annotations
 
 import json

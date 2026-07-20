@@ -14,6 +14,10 @@ The frontmatter parser below follows the same shallow key:value /
 block-list / folded-scalar pattern as `frontmatter()` in scripts/okf-sync.sh
 (no YAML dependency).
 
+NOTE: The generated viz.html loads cytoscape and marked from a jsdelivr CDN,
+so viewing it requires internet access. The generation step itself is
+offline and uses only stdlib.
+
 Usage:
     python3 scripts/visualize.py <bundle-dir> [--out FILE] [--name NAME]
 """
