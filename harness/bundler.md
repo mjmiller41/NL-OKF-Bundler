@@ -56,6 +56,11 @@ material makes the existing shape illogical — never a wipe-and-rebuild.
 
 Run the phases below in order. Each phase's output feeds the next.
 
+0. **Record the target** (for the TUI status line). Write the absolute `OUT`
+   path to `.claude/.current-bundle` in this harness repo — a one-line `Bash`
+   `echo`. This lets the status line show the live concept count and lint
+   state of the bundle you're building. The file is runtime scratch
+   (git-ignored); overwrite it each run.
 1. **Intake.** Ingest every ref into `references/` (see Reference intake).
 2. **Organize** — unless *no-organize*. Dispatch the `organizer` subagent
    (see Handoff protocol) with the newly ingested reference slugs, any

@@ -1,0 +1,17 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash scripts/statusline.sh",
+    "refreshInterval": 5
+  },
+  "terminalTitleFromRename": false,
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "bash scripts/session-banner.sh" }
+        ]
+      }
+    ]
+  }
+}
