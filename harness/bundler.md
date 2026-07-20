@@ -21,11 +21,13 @@ Run-options are natural-language flags the prompt may set. Recognize these
 - **no-organize** — skip the Organize step entirely. The run is purely
   additive: new concepts land wherever the prompt or existing structure
   implies, the existing tree is never restructured.
-- **force** — re-enrich concepts that already have an on-disk doc, instead of
-  skipping them. Without `force`, an enricher briefed for an existing concept
-  still runs (to pick up new source material) but treats the write as an
-  augmentation per its own rules; intake-level skip/force (below) is separate
-  and governs reference files, not concept docs.
+- **force** — without `force`, a concept whose doc already exists on disk is
+  skipped (no enricher dispatched, tallied in the Run summary's `skipped`
+  count). With `force`, the orchestrator dispatches an enricher for existing
+  concepts too, and the enricher refines/extends the existing doc rather than
+  discarding it. New concepts (no existing doc) are always enriched.
+  Intake-level skip/force (below) is separate and governs reference files,
+  not concept docs.
 - **concept placement** — the prompt may name one or more concepts to focus
   on. A **full id** (a path like `technology/ai`) is an exact filter: touch
   only that concept. A **bare name** (`AI`, `billing`) is a placement
@@ -63,9 +65,12 @@ Run the phases below in order. Each phase's output feeds the next.
      `OUT/.okf-plan.md` and **stop the run here**. No enrichers, no
      web-crawl, no `log.md`, no sync, no validation.
 3. **Enrich.** Read `OUT/.okf-plan.md` (or, in *no-organize* mode, the
-   concepts implied by the refs and any placement filter) and dispatch one
-   `enricher` `Task` per concept, in parallel, per the failure-isolation rule
-   in Handoff protocol.
+   concepts implied by the refs and any placement filter). For each new
+   concept (no existing on-disk doc), and for each existing concept only if
+   *force* is set, dispatch an `enricher` `Task`, in parallel — one per
+   concept — per the failure-isolation rule in Handoff protocol. An existing
+   concept without *force* is skipped (no `Task` dispatched) and counted in
+   the Run summary's `skipped` total.
 4. **Web-crawl** — only if web seeds were given. Dispatch the `web-crawler`
    subagent once with the seeds, budget, and allowlist.
 5. **Author `log.md`.** The orchestrator itself (not a subagent) writes the
@@ -206,5 +211,7 @@ Also state the stopping-condition outcome (lint clean + validator
 conformant, or what's still broken) and, if a web-crawl ran, its one-line
 return (pages fetched / docs updated / references minted).
 
-Optionally, if asked for a visual, run `scripts/visualize.py OUT` to render
-`viz.html` — this is not part of the automatic run loop, only run on request.
+Optionally, if asked for a visual, run
+`python3 scripts/visualize.py <OUT>` (optionally `[--out FILE] [--name NAME]`)
+to render `viz.html` — this is not part of the automatic run loop, only run
+on request.
