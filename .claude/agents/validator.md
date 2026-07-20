@@ -1,6 +1,6 @@
 ---
 name: validator
-description: Read-only OKF conformance and citation audit — runs the vendored lint helper, then checks citations, log sanity, and returns a structured verdict.
+description: Read-only OKF conformance gate — runs the vendored lint for ERROR-level defects, checks # Citations presence (uncited) and log sanity, returns a structured verdict. Link/citation-target resolution belongs to the reviewer.
 tools: Read, Bash, Glob, Grep
 model: inherit
 ---
@@ -26,14 +26,16 @@ not assumptions.
    Treat every `ERROR` line as a blocking defect — non-empty `type` missing
    on a concept, frontmatter present on a reserved index/log file (the
    bundle-root `index.md` is the only exception, and only for `okf_version`),
-   or an unterminated frontmatter block. `WARN` lines (broken bundle-relative
-   links) and `INFO` lines (missing optional root `okf_version`) are
-   advisory — record them but do not treat them as defects.
+   or an unterminated frontmatter block. `INFO` lines (missing optional root
+   `okf_version`) are advisory. **Ignore `WARN` broken-link lines entirely** —
+   link and citation-target resolution is the `reviewer`'s scope, not yours;
+   don't record or report them.
 
-2. **Citation audit** (the linter can't do this). For every non-reserved
-   concept in the bundle, `Read` it and check for a `# Citations` section
+2. **Citation presence** (the linter can't do this). For every non-reserved
+   concept in the bundle, `Read` it and check it *has* a `# Citations` section
    with at least one non-empty entry. Concepts missing one go in `uncited:` —
-   this is a soft contract, not a blocking defect.
+   a soft contract, not a blocking defect. Check **presence only**; whether the
+   citation *links resolve* is the `reviewer`'s job, not yours.
 
 3. **`log.md` sanity.** Wherever a `log.md` exists, check it reads
    newest-first with `## YYYY-MM-DD` date headings. A violation is a defect.

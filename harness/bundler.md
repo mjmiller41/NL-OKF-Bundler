@@ -88,15 +88,17 @@ Run the phases below in order. Each phase's output feeds the next.
    trigger foreign automation (e.g. a `post-commit` bundle sync that
    regenerates docs). Leave every bundle change staged for the user to review
    and commit per the git workflow.
-7. **Validate.** Dispatch the `validator` subagent against `OUT`.
-8. **Review.** Dispatch the `reviewer` subagent against `OUT` for a
-   link-and-citation integrity + quality pass — it catches broken bundle
-   links, unresolved citations, leftover scratch, and placeholder/truncated
-   content that the mechanical lint only flags as advisory. Fix the clear
-   mechanical findings it returns (repoint or remove broken `/`-links, delete
-   leftover scratch), then re-run the **Sync** step once so the fixes are
-   reflected; report anything you can't cleanly fix in the Run summary. Do
-   not loop more than once.
+7. **Validate + Review** (concurrent). Dispatch the `validator` and the
+   `reviewer` against `OUT`. Their scopes are **disjoint**: the `validator` is
+   the conformance gate (lint `ERROR`s, `# Citations` presence / `uncited:`,
+   `log.md` sanity), and the `reviewer` owns link and citation-target
+   resolution plus content quality — neither runs the other's checks. Because
+   they don't overlap, issue both `Task` calls in the **same message** so they
+   run concurrently.
+8. **Act on findings.** Fix the `reviewer`'s clear mechanical findings (repoint
+   or remove broken `/`-links, delete leftover scratch), then re-run the
+   **Sync** step once so the fixes are reflected; report anything you can't
+   cleanly fix in the Run summary. Do not loop more than once.
 9. **Run summary.** Emit the summary (see Run summary) covering everything
    from Intake through Review.
 
