@@ -1,0 +1,6 @@
+# Python bytecode from the vendored/helper scripts
+__pycache__/
+*.py[cod]
+
+# SDD scratch (briefs, reports, review packages, progress ledger)
+.superpowers/
