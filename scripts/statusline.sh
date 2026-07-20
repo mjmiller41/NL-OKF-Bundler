@@ -24,7 +24,7 @@ if [ -f "$repo/.claude/.current-bundle" ]; then
 fi
 [ -z "$target" ] && [ -d "$repo/knowledge" ] && target="$repo/knowledge"
 
-status="🧶 bundler · ${model}"
+status="🧶 OKF Bundler · ${model}"
 [ -n "$short" ] && status="$status · ${short}"
 
 if [ -n "$target" ]; then
